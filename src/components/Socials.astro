@@ -1,0 +1,11 @@
+---
+import GearIcon from './GearIcon.astro';
+const { socials } = Astro.props;
+---
+<ul>
+  {socials.map((s: any) => (
+    <li><a href={s.url} class="inline-flex items-center gap-2" target="_blank" rel="noreferrer">
+      <GearIcon size={18} /><span>{s.label}</span>
+    </a></li>
+  ))}
+</ul>

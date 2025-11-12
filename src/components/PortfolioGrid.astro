@@ -1,0 +1,80 @@
+---
+interface Props {
+  projects: Array<{
+    title: string;
+    imageUrl: string;
+    description?: string;
+    technologies?: string[];
+    linkUrl?: string;
+    repoUrl?: string;
+  }>;
+}
+
+const { projects } = Astro.props;
+---
+<div class="portfolio">
+  {projects.map((p: any, index: number) => {
+    const placeholderImage = 'https://media.discordapp.net/attachments/515324368633593866/1371976398754807860/image.png?ex=6915b1d7&is=69146057&hm=03edc1162f798d5642dba415cd24aab8023a370da34bee8b84b94862847f0a35&=&format=webp&quality=lossless';
+    return (
+      <button type="button" class="portfolio-item-wrapper portfolio-button" data-index={index}>
+        <img 
+          class="portfolio-img" 
+          src={p.imageUrl || placeholderImage} 
+          alt={`Screenshot: ${p.title}`} 
+          loading="lazy"
+          onerror={`this.src='${placeholderImage}'`}
+        />
+        <div class="portfolio-item-info">
+          <div class="portfolio-item-header">
+            <h3 class="portfolio-item-title">{p.title}</h3>
+            <div class="portfolio-item-links">
+              {p.repoUrl && (
+                <a 
+                  href={p.repoUrl} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  class="portfolio-item-link portfolio-item-link-github"
+                  aria-label={`View ${p.title} on GitHub`}
+                  data-link="true"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                  </svg>
+                </a>
+              )}
+              {p.linkUrl && (
+                <a 
+                  href={p.linkUrl} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  class="portfolio-item-link portfolio-item-link-web"
+                  aria-label={`Visit ${p.title}`}
+                  data-link="true"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                  </svg>
+                </a>
+              )}
+            </div>
+          </div>
+          {p.description && (
+            <p class="portfolio-item-description">{p.description}</p>
+          )}
+          {p.technologies && p.technologies.length > 0 && (
+            <div class="portfolio-item-techs">
+              {p.technologies.map((tech: string) => (
+                <span class="portfolio-tech-tag">{tech}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      </button>
+    )
+  })}
+  
+
+</div>
+
+

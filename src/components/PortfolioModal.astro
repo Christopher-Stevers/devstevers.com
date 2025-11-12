@@ -1,0 +1,292 @@
+---
+interface Props {
+  projects: Array<{
+    title: string;
+    imageUrl: string;
+    secondaryImageUrl?: string;
+    description?: string;
+    markdown?: string;
+    technologies?: string[];
+    linkUrl?: string;
+    repoUrl?: string;
+  }>;
+}
+
+const { projects } = Astro.props;
+---
+
+<div class="overlay hidden" id="portfolio-overlay">
+  <div class="modal-modern">
+    <button class="modal-close" id="exit-list" aria-label="Close modal">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    
+    <div class="modal-header">
+      <img class="modal-hero-img" src="" alt="" id="modal-main-img" />
+      <div class="modal-header-content">
+        <h2 id="modal-title" class="modal-title-modern"></h2>
+        <div id="modal-techs" class="modal-techs"></div>
+      </div>
+    </div>
+    
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3 class="modal-section-title">About</h3>
+        <div id="modal-content" class="modal-content"></div>
+      </div>
+      
+      <div id="modal-links-section" class="modal-section modal-links-section" style="display: none;">
+        <h3 class="modal-section-title">Links</h3>
+        <div id="modal-links" class="modal-links"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ projects }}>
+  const PLACEHOLDER_IMAGE = 'https://media.discordapp.net/attachments/515324368633593866/1371976398754807860/image.png?ex=6915b1d7&is=69146057&hm=03edc1162f798d5642dba415cd24aab8023a370da34bee8b84b94862847f0a35&=&format=webp&quality=lossless';
+  
+  // Enhanced markdown renderer
+  function renderMarkdown(markdown) {
+    if (!markdown) return '';
+    
+    let html = markdown;
+    
+    // Code blocks first (before other processing)
+    html = html.replace(/```(\w+)?\n([\s\S]*?)```/gim, '<pre><code>$2</code></pre>');
+    
+    // Headers (process in order from largest to smallest)
+    html = html.replace(/^#### (.*$)/gim, '<h4>$1</h4>');
+    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+    html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+    html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+    
+    // Bold and italic (bold first to avoid conflicts)
+    html = html.replace(/\*\*\*(.*?)\*\*\*/gim, '<strong><em>$1</em></strong>');
+    html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+    html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
+    
+    // Images
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/gim, '<img src="$2" alt="$1" class="modal-inline-img" loading="lazy" />');
+    
+    // Links
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" target="_blank" rel="noreferrer" class="modal-markdown-link">$1</a>');
+    
+    // Inline code (after other replacements)
+    html = html.replace(/`([^`\n]+)`/gim, '<code>$1</code>');
+    
+    // Split into paragraphs (double line breaks)
+    const paragraphs = html.split(/\n\n+/);
+    html = paragraphs.map(p => {
+      p = p.trim();
+      if (!p) return '';
+      // If it's already a block element, return as-is
+      if (/^<(h[1-6]|pre|ul|ol)/.test(p)) {
+        return p;
+      }
+      // Otherwise wrap in paragraph
+      return '<p>' + p.replace(/\n/g, '<br />') + '</p>';
+    }).filter(p => p).join('');
+    
+    return html;
+  }
+  
+  function initModal() {
+    const overlay = document.getElementById('portfolio-overlay');
+    const mainImg = document.getElementById('modal-main-img');
+    const modalTitle = document.getElementById('modal-title');
+    const modalTechs = document.getElementById('modal-techs');
+    const modalContent = document.getElementById('modal-content');
+    const modalLinks = document.getElementById('modal-links');
+    const modalLinksSection = document.getElementById('modal-links-section');
+    const exitBtn = document.getElementById('exit-list');
+    
+    if (!overlay || !mainImg || !modalTitle || !modalContent) {
+      console.error('Modal elements not found!');
+      return;
+    }
+
+    const hideModal = () => {
+      if (overlay) overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    };
+
+    const openModal = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const target = e.target;
+      const button = target.closest('.portfolio-button');
+      
+      if (!button) {
+        console.warn('Portfolio button not found', target);
+        return;
+      }
+      
+      const index = parseInt(button.dataset.index || '0');
+      const project = projects[index];
+      if (!project) {
+        console.warn('Project not found at index:', index, 'Available projects:', projects.length);
+        return;
+      }
+      
+      console.log('Opening modal for project:', project.title, 'at index:', index);
+      
+      // Set hero image
+      if (mainImg) {
+        const imageUrl = project.imageUrl || PLACEHOLDER_IMAGE;
+        mainImg.src = imageUrl;
+        mainImg.alt = project.title || 'Project image';
+        mainImg.onerror = function() {
+          if (this.src !== PLACEHOLDER_IMAGE) {
+            this.src = PLACEHOLDER_IMAGE;
+          }
+        };
+      }
+      
+      // Set title
+      if (modalTitle) {
+        modalTitle.textContent = project.title || '';
+      }
+      
+      // Set technologies
+      if (modalTechs) {
+        modalTechs.innerHTML = '';
+        if (project.technologies && project.technologies.length > 0) {
+          project.technologies.forEach(tech => {
+            const techTag = document.createElement('span');
+            techTag.className = 'modal-tech-tag';
+            techTag.textContent = tech;
+            modalTechs.appendChild(techTag);
+          });
+        }
+      }
+      
+      // Set content (markdown or description)
+      if (modalContent) {
+        if (project.markdown) {
+          modalContent.innerHTML = renderMarkdown(project.markdown);
+        } else if (project.description) {
+          modalContent.innerHTML = `<p>${project.description}</p>`;
+        } else {
+          modalContent.innerHTML = '<p>No description available.</p>';
+        }
+      }
+      
+      // Set links
+      if (modalLinks) {
+        modalLinks.innerHTML = '';
+        let hasLinks = false;
+        
+        if (project.linkUrl) {
+          const linkEl = document.createElement('a');
+          linkEl.href = project.linkUrl;
+          linkEl.target = '_blank';
+          linkEl.rel = 'noreferrer';
+          linkEl.className = 'modal-link-btn';
+          linkEl.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> Visit Site';
+          modalLinks.appendChild(linkEl);
+          hasLinks = true;
+        }
+        
+        if (project.repoUrl) {
+          const linkEl = document.createElement('a');
+          linkEl.href = project.repoUrl;
+          linkEl.target = '_blank';
+          linkEl.rel = 'noreferrer';
+          linkEl.className = 'modal-link-btn';
+          linkEl.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> View Code';
+          modalLinks.appendChild(linkEl);
+          hasLinks = true;
+        }
+        
+        if (modalLinksSection) {
+          modalLinksSection.style.display = hasLinks ? 'block' : 'none';
+        }
+      }
+      
+      // Show modal
+      if (overlay) {
+        overlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+    };
+
+    // Add click handlers directly to portfolio cards
+    function attachClickHandlers() {
+      const cards = document.querySelectorAll('.portfolio-button');
+      console.log('Attaching click handlers to', cards.length, 'portfolio cards');
+      
+      cards.forEach((card) => {
+        // Add click handler (will be called even if already attached)
+        card.addEventListener('click', function(e) {
+          // Don't open modal if clicking on a link
+          if (e.target.closest('a') || e.target.closest('[data-link="true"]')) {
+            return; // Let the link handle the click
+          }
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Card clicked!', this.dataset.index);
+          openModal(e);
+        });
+      });
+      
+      // Add click handlers to links to stop propagation
+      const links = document.querySelectorAll('.portfolio-item-link');
+      links.forEach((link) => {
+        link.addEventListener('click', function(e) {
+          e.stopPropagation(); // Stop event from bubbling to the button
+          // Let the default link behavior happen (navigation)
+        });
+      });
+    }
+    
+    // Try immediately and also after a delay to catch dynamically loaded content
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', attachClickHandlers);
+    } else {
+      attachClickHandlers();
+    }
+    setTimeout(attachClickHandlers, 100);
+    setTimeout(attachClickHandlers, 500);
+    
+    // Also use event delegation as backup
+    document.addEventListener('click', (e) => {
+      const button = e.target.closest('.portfolio-button');
+      // Don't open modal if clicking on a link or element with data-link attribute
+      if (button && !e.target.closest('a') && !e.target.closest('[data-link="true"]')) {
+        console.log('Event delegation caught click on card');
+        openModal(e);
+      }
+    }, true);
+
+    // Close modal handlers
+    if (overlay) {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          hideModal();
+        }
+      });
+    }
+    
+    if (exitBtn) {
+      exitBtn.addEventListener('click', hideModal);
+    }
+    
+    // ESC key to close
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay && !overlay.classList.contains('hidden')) {
+        hideModal();
+      }
+    });
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initModal);
+  } else {
+    initModal();
+  }
+</script>

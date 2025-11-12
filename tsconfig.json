@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {},
+    "types": ["astro/client"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2020"
+  }
+}

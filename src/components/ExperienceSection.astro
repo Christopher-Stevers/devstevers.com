@@ -1,0 +1,50 @@
+---
+interface Experience {
+  jobTitle: string;
+  company: string;
+  location: string;
+  startDate: string;
+  endDate: string | null; // null means "Present"
+  duration: string; // e.g., "+1 year"
+  responsibilities: string[];
+  technologies: string[];
+}
+
+const { experiences } = Astro.props;
+---
+
+<section class="experience-section">
+  <h2 class="experience-head">Experience</h2>
+  <div class="experience-list">
+    {experiences.map((exp: Experience) => (
+      <article class="experience-entry">
+        <div class="experience-header">
+          <div class="experience-title-group">
+            <h3 class="experience-job-title">{exp.jobTitle}</h3>
+            <div class="experience-company-location">
+              <span class="experience-company">{exp.company}</span>
+              <span class="experience-location">{exp.location}</span>
+            </div>
+          </div>
+          <div class="experience-dates">
+            <div class="experience-duration-text">
+              {exp.startDate} - {exp.endDate || 'Present'}
+            </div>
+            <div class="experience-duration-badge">{exp.duration}</div>
+          </div>
+        </div>
+        <ul class="experience-responsibilities">
+          {exp.responsibilities.map((responsibility: string) => (
+            <li>{responsibility}</li>
+          ))}
+        </ul>
+        <div class="experience-technologies">
+          {exp.technologies.map((tech: string) => (
+            <span class="tech-tag">{tech}</span>
+          ))}
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
+

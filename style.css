@@ -201,11 +201,7 @@ h1 {
     grid-row: 2/3;
   }
 }
-strong {
-  padding: 20px 0px 20px 24px;
-  white-space: nowrap;
-  font-size:2rem;
-}
+
 body {
   background-color: var(--light-bg-color);
 }
@@ -223,7 +219,6 @@ border-bottom-left-radius: 8px;}
 padding: 0px;
 margin: 6px;
 margin-right: 12px;}
-.social-links>a:hover{ transform: scale(1.05);}
 .github{border-radius: 50%;
   box-shadow: inset var(--main-bg-color) 0px 0px 0px 1px;
 background-color: var(--light-bg-color);}
@@ -331,12 +326,13 @@ ul.icon-list > li {
   grid-template-columns: repeat(auto-fit, 25rem);
 position: absolute;
 top: 0px;}
-button.portfolio-img{background-color: #00000000;
+button.portfolio-img{background-color: #0400f8c0;
   color: transparent;
   outline: transparent;
   border: transparent;
+  border-top: 10px solid var(--light-bg-color);
   font-size: 2.25rem;}
-button.portfolio-img:hover{background-color: #000000b1;
+button.portfolio-img:hover{background-color: #450fa8b1;
 
   color: var(--light-color);}
 @media screen and (max-width: 1330px) {

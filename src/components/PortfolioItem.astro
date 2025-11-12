@@ -1,0 +1,70 @@
+---
+interface Props {
+  project: {
+    title: string;
+    imageUrl: string;
+    linkUrl?: string;
+    repoUrl?: string;
+  };
+  index: number;
+}
+
+const { project, index } = Astro.props;
+---
+
+<button 
+  type="button"
+  class="portfolio-img portfolio-button" 
+  data-index={index}
+  data-title={project.title}
+  data-image-url={project.imageUrl || ''}
+  data-link-url={project.linkUrl || ''}
+  data-repo-url={project.repoUrl || ''}
+  aria-label={`View details for ${project.title}`}
+  id={`portfolio-button-${index}`}
+>
+  {project.title}
+</button>
+
+<script define:vars={{ project, index }}>
+  // Ensure this button opens the modal when clicked
+  function initPortfolioButton() {
+    const button = document.getElementById(`portfolio-button-${index}`);
+    if (!button) {
+      console.warn(`Portfolio button ${index} not found`);
+      return;
+    }
+
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Dispatch a custom event that the modal can listen to
+      const customEvent = new CustomEvent('portfolio-item-click', {
+        detail: {
+          index,
+          project: {
+            title: project.title,
+            imageUrl: project.imageUrl,
+            linkUrl: project.linkUrl,
+            repoUrl: project.repoUrl,
+          }
+        },
+        bubbles: true
+      });
+      button.dispatchEvent(customEvent);
+      
+      // Also trigger the existing modal system by simulating a click event
+      // that the PortfolioModal event delegation will catch
+      console.log(`Portfolio item ${index} clicked:`, project.title);
+    });
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPortfolioButton);
+  } else {
+    initPortfolioButton();
+  }
+</script>
+

@@ -1,0 +1,36 @@
+{
+  "name": "devstevers-astro-contentful",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "contentful:setup": "node scripts/setup-contentful.mjs",
+    "contentful:seed": "node scripts/seed-contentful.mjs",
+    "contentful:update-project-type": "node scripts/update-project-content-type.mjs",
+    "contentful:upsert-portfolio": "node scripts/upsert-portfolio-copy.mjs",
+    "contentful:check-fields": "node scripts/add-portfolio-fields-guide.mjs",
+    "contentful:complete-upsert": "node scripts/complete-portfolio-upsert.mjs",
+    "contentful:update-site-projects": "node scripts/update-site-settings-projects.mjs",
+    "contentful:add-markdown-field": "node scripts/add-markdown-field.mjs",
+    "contentful:upsert-markdown": "node scripts/upsert-portfolio-markdown.mjs",
+    "contentful:add-about-markdown": "node scripts/add-about-markdown-field.mjs",
+    "contentful:upsert-site-settings": "node scripts/upsert-site-settings.mjs",
+    "contentful:link-socials": "node scripts/link-socials-to-site-settings.mjs"
+  },
+  "dependencies": {
+    "astro": "^4.15.0",
+    "contentful": "^10.5.2",
+    "contentful-management": "^11.27.1",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3"
+  },
+  "packageManager": "pnpm@10.11.1"
+}

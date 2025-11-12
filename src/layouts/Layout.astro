@@ -1,0 +1,60 @@
+---
+import '../styles.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Christopher Stevers Development Portfolio" } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      @import url('/_astro/index.zyekAYu0.css');
+    </style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+
+  :root {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-white text-slate-900 antialiased;
+  }
+
+  main {
+    @apply max-w-3xl mx-auto px-6 py-10;
+  }
+
+  a {
+    @apply text-blue-600 underline underline-offset-2 hover:no-underline;
+  }
+
+  hr {
+    @apply my-10 border-slate-200;
+  }
+
+  pre {
+    @apply text-sm text-slate-600 font-mono;
+  }
+
+  section + section {
+    @apply mt-12;
+  }
+</style>
